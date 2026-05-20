@@ -1,5 +1,5 @@
 import numpy as np
-from smart_captain.skills.path_tracking.config import MPC_CONFIG
+from smart_captain.skills.target_tracking.config import MPC_CONFIG
 import casadi as ca
 
 class AUV_MPC:

@@ -48,17 +48,17 @@ MPC_CONFIG = {
     "command_space": 4,
 }
 
-PATH_TRACKING_SPEC = SkillSpec(
-    name="path_tracking",
-    env_cls="smart_captain.skills.path_tracking.env:PathTrackingEnv",
-    policy_cls="smart_captain.skills.path_tracking.policy:MPCPathTrackingPolicy",
+TARGET_TRACKING_SPEC = SkillSpec(
+    name="target_tracking",
+    env_cls="smart_captain.skills.target_tracking.env:TargetTrackingEnv",
+    policy_cls="smart_captain.skills.target_tracking.policy:TargetTrackingPolicy",
     default_scenario="pier_harbor",
     observation_dim=12 + (MPC_CONFIG["horizon"] + 1) * 12,
     action_dim=4,
-    description="MPC-based path tracking skill.",
+    description="MPC-based target tracking skill.",
     default_sensors=("dynamics", "velocity", "rangefinder"),
-    tags=("path_tracking", "mpc", "trajectory"),
-    config_entrypoint="smart_captain.skills.path_tracking.config:PATH_TRACKING_SPEC",
+    tags=("target_tracking", "mpc", "trajectory"),
+    config_entrypoint="smart_captain.skills.target_tracking.config:TARGET_TRACKING_SPEC",
     metadata={
         "controller": "mpc",
         "action_order": ("surge", "sway", "heave", "yaw"),

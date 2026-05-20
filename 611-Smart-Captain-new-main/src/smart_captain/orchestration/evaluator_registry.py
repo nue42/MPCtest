@@ -22,7 +22,7 @@ EVALUATOR_REGISTRY: dict[str, str] = {
         "smart_captain.skills.obstacle_avoidance.evaluator:"
         "ObstacleAvoidanceEvaluator"
     ),
-    "path_tracking": "smart_captain.skills.path_tracking.evaluator:PathTrackingEvaluator",#增加
+    "target_tracking": "smart_captain.skills.target_tracking.evaluator:TargetTrackingEvaluator",
 }
 
 

@@ -7,17 +7,17 @@ from smart_captain.orchestration.feedback import (
 )
 
 
-class PathTrackingEvaluator:
+class TargetTrackingEvaluator:
     def evaluate(self, *, subtask, context, feedback: FeedbackSnapshot) -> TaskProgress:
         if feedback.collision or feedback.truncated:
             status = ProgressStatus.FAILED
-            reason = "path_tracking_terminal_failure"
+            reason = "target_tracking_terminal_failure"
         elif feedback.goal_reached or feedback.done:
             status = ProgressStatus.SUCCEEDED
-            reason = "path_tracking_done"
+            reason = "target_tracking_done"
         else:
             status = ProgressStatus.RUNNING
-            reason = "path_tracking_running"
+            reason = "target_tracking_running"
 
         return TaskProgress(
             subtask_id=subtask.id,
