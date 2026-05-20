@@ -11,10 +11,13 @@ from smart_captain.skills.obstacle_avoidance.config import OBSTACLE_AVOIDANCE_SP
 from smart_captain.skills.search.env import SearchEnv
 from smart_captain.skills.target_tracking.env import TargetTrackingEnv
 
+from smart_captain.skills.path_tracking.config import PATH_TRACKING_SPEC#增加
+
 
 SKILL_REGISTRY: dict[str, SkillSpec] = {
     NAVIGATION_SPEC.name: NAVIGATION_SPEC,
     OBSTACLE_AVOIDANCE_SPEC.name: OBSTACLE_AVOIDANCE_SPEC,
+    PATH_TRACKING_SPEC.name: PATH_TRACKING_SPEC,#增加
     "target_tracking": SkillSpec(
         name="target_tracking",
         env_cls="smart_captain.skills.target_tracking.env:TargetTrackingEnv",
