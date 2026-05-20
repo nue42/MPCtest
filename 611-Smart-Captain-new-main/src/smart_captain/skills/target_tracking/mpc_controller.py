@@ -4,7 +4,7 @@ import casadi as ca
 
 class AUV_MPC:
     def __init__(self, config=MPC_CONFIG):
-        self.config = MPC_CONFIG
+        self.config = config
         self.dt = self.config["dot_t"]
         self.N = self.config["horizon"]
         self.nx = self.config["obs_space"]

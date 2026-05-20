@@ -3,7 +3,7 @@ from smart_captain.skills.target_tracking.config import MPC_CONFIG
 
 class HoveringAUVModel:
     def __init__(self, config=MPC_CONFIG):
-        self.config = MPC_CONFIG
+        self.config = config
         self.dt = self.config["dot_t"]
         
         # Physical parameters

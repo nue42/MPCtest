@@ -11,7 +11,7 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
     """Placeholder target tracking environment."""
     spec = TARGET_TRACKING_SPEC
 
-    def __init__(self, env_config: dict = BASE_CONFIG, mpc_config: dict = MPC_CONFIG, auv = None, train_mode = True):
+    def __init__(self, env_config: dict = BASE_CONFIG, auv = None, train_mode = True, mpc_config: dict = MPC_CONFIG):
         """
         路径跟踪任务分为两种模式：
         1、测试模式，它将通过傅里叶级数生成一个随机的周期性路径，用于测试这套方法的准确度
@@ -399,6 +399,29 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
                 p, dpds, L = self._path_cache[cache_key]
             return self._generate_ref_from_curve_pos(p, dpds, L, current_pos)
 
+    #MPC修改
+    def build_tracking_observation(self):
+        if not hasattr(self, "goal_pos") or self.goal_pos is None:
+            self.goal_pos = self.goal_location
+
+        if not hasattr(self, "start_pos") or self.start_pos is None:
+            self.start_pos = self.auv_position
+
+        if not hasattr(self, "_path_cache"):
+            self._path_cache = {}
+
+        ref = self.generate_reference_trajectory(self.auv_position, self.goal_pos)
+
+        states = np.zeros(12)
+        states[0:3] = self.auv_position
+        states[3:6] = self.auv_attitude
+        states[6:9] = self.auv_relative_velocity
+        states[9:12] = self.auv_angular_velocity
+
+        self.ref = ref
+        return np.concatenate([states, ref.flatten()])
+    #MPC修改结束
+
     def reset(self, seed=None, return_info=True, options=None):
         obs, info_dict = super().reset(seed, return_info, options)
 
@@ -426,14 +449,8 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
     def step(self, action):
         _, reward, done, _, info = super().step(action)
 
-        ref = self.generate_reference_trajectory(self.auv_position, self.goal_pos)
-        states = np.zeros(12)
-        states[0:3] = self.auv_position
-        states[3:6] = self.auv_attitude
-        states[6:9] = self.auv_relative_velocity
-        states[9:12] = self.auv_angular_velocity
-        obs = np.concatenate([states, ref.flatten()])
-        self.ref = ref
+        obs = self.build_tracking_observation()
+        
         return obs, reward, done, False, self.info
 
     def get_done(self):
@@ -477,3 +494,4 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
         obs = np.concatenate([states, ref.flatten()])
         self.ref = ref
         return obs, info_dict
+    
