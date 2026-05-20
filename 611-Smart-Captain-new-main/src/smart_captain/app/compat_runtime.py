@@ -87,7 +87,6 @@ class MixedSkillAgents:
     def active_skill(self):
         return getattr(self.rl_agents, "active_skill", None)
 
-
 #MPC新增兼容部分结束
 
 def preview_legacy_plan(config: LegacyRuntimeConfig | None = None) -> dict[str, Any]:
