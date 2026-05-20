@@ -32,6 +32,7 @@ logs
 .DS_Store
 # Editor Directories and Files
 .vscode/
+/.vscode/*
 !.vscode/extensions.json
 .idea
 *.suo
