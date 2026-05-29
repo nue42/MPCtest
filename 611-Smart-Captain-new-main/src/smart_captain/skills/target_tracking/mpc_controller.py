@@ -56,17 +56,26 @@ class AUV_MPC:
     
         # action_to_command 矩阵 (8x4)
         self.M_action = np.array([
-            [0,0,0,1],
-            [0,0,0,1],
-            [0,0,0,1],
-            [0,0,0,1],
-            [1,1,1,0],
-            [1,-1,-1,0],
-            [1,1,-1,0],
-            [1,-1,1,0]
+            [0,0,1,0],
+            [0,0,1,0],
+            [0,0,1,0],
+            [0,0,1,0],
+            [1,-1,0,1],
+            [1,1,0,-1],
+            [1,-1,0,-1],
+            [1,1,0,1]
         ], dtype=np.float64)
         # 有效控制分配矩阵 (6x4)
         self.B_eff = self.B @ self.M_action   # 形状 (6,4)
+        #self.B_eff = np.array([
+            #[2.8,  0.0, 0.0, 0.0],   # surge -> +Fx
+            #[0.0, -2.8, 0.0, 0.0],   # sway  -> -Fy, matches HoloOcean response
+            #[0.0,  0.0, 4.0, 0.0],   # heave -> +Fz
+            #[0.0,  0.0, 0.0, 0.0],   # roll torque ignored
+            #[0.0,  0.0, 0.0, 0.0],   # pitch torque ignored
+            #[0.0,  0.0, 0.0, 0.12],  # yaw -> +Tz
+        #], dtype=np.float64)
+
 
         self.Q = self.config["Q"]
         self.R = self.config["R"]
@@ -80,7 +89,18 @@ class AUV_MPC:
 
         self._build_symbolic_model()
         self._build_optimization_problem()
-    
+
+    def _state_error(self, x, ref):
+        pos_err = x[0:3] - ref[0:3]
+        angle_err = ca.vertcat(
+            ca.atan2(ca.sin(x[3] - ref[3]), ca.cos(x[3] - ref[3])),
+            ca.atan2(ca.sin(x[4] - ref[4]), ca.cos(x[4] - ref[4])),
+            ca.atan2(ca.sin(x[5] - ref[5]), ca.cos(x[5] - ref[5])),
+        )
+        vel_err = x[6:9] - ref[6:9]
+        omega_err = x[9:12] - ref[9:12]
+        return ca.vertcat(pos_err, angle_err, vel_err, omega_err)
+
     def _build_symbolic_model(self):
         x_sym = ca.MX.sym('x', self.nx)
         u_sym = ca.MX.sym('u', self.nu)
@@ -158,7 +178,7 @@ class AUV_MPC:
             ref_k = ref_param[k*self.nx : (k+1)*self.nx]
 
             # 跟踪代价
-            err = x_k - ref_k
+            err = self._state_error(x_k, ref_k)
             cost += ca.mtimes([err.T, self.Q, err])
             # 控制代价
             cost += ca.mtimes([u_k.T, self.R, u_k])
@@ -179,7 +199,9 @@ class AUV_MPC:
             #g_ineq.append(self.x_max - x_k)   # x_k <= x_max
 
         # 终端代价
-        err_N = X[self.N*self.nx:] - ref_param[self.N*self.nx:]
+        x_N = X[self.N*self.nx:]
+        ref_N = ref_param[self.N*self.nx:]
+        err_N = self._state_error(x_N, ref_N)
         cost += ca.mtimes([err_N.T, self.Q, err_N])
 
         # 将所有约束拼接成一个列向量

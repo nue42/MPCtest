@@ -433,7 +433,7 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
         # 重置参考进度
         self._reset_reference_progress()
 
-        p, dpds, L = self._generate_circular_path()
+        p, dpds, L = self._generate_straight_path()
         cache_key = tuple(self.goal_location)
         self._path_cache[cache_key] = (p, dpds, L)
         ref = self._generate_ref_from_curve_pos(p, dpds, L, self.auv_position)
@@ -482,7 +482,7 @@ class TargetTrackingEnv(BaseEnvironment,SkillAdapter):
         # 重置参考进度
         self._reset_reference_progress()
 
-        p, dpds, L = self._generate_circular_path()
+        p, dpds, L = self._generate_straight_path()
         cache_key = tuple(self.goal_location)
         self._path_cache[cache_key] = (p, dpds, L)
         ref = self._generate_ref_from_curve_pos(p, dpds, L, self.auv_position)
